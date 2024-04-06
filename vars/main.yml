@@ -8,7 +8,6 @@ atomic_red_team_debian_specific_packages:
   - curl
   - libunwind8
   - software-properties-common
-  - wget
 
 atomic_red_team_redhat_specific_packages:
   - libicu
