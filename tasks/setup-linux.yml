@@ -5,9 +5,9 @@
       ansible.builtin.include_role:
         name: cowdogmoo.workstation.package_management
       vars:
-        package_management_common_install_packages: "{{ atomic_red_team_common_install_packages }}"
-        package_management_debian_specific_packages: "{{ atomic_red_team_debian_specific_packages }}"
-        package_management_redhat_specific_packages: "{{ atomic_red_team_redhat_specific_packages }}"
+        package_management_common_install_packages: "{{ ansible_atomic_red_team_common_install_packages }}"
+        package_management_debian_specific_packages: "{{ ansible_atomic_red_team_debian_specific_packages }}"
+        package_management_redhat_specific_packages: "{{ ansible_atomic_red_team_redhat_specific_packages }}"
       when: ansible_os_family in ['Debian', 'RedHat']
 
     - name: Set architecture mapping for PowerShell tar.gz packages
@@ -18,12 +18,12 @@
 
     - name: Set PowerShell package name based on architecture
       ansible.builtin.set_fact:
-        ps_pkg_name: "powershell-{{ atomic_red_team_pwsh_version }}-linux-{{ ps_arch_map[ansible_architecture] }}.tar.gz"
+        ps_pkg_name: "powershell-{{ ansible_atomic_red_team_pwsh_version }}-linux-{{ ps_arch_map[ansible_architecture] }}.tar.gz"
       when: ansible_architecture in ps_arch_map
 
     - name: Set PowerShell package download URL
       ansible.builtin.set_fact:
-        ps_download_url: "https://github.com/PowerShell/PowerShell/releases/download/v{{ atomic_red_team_pwsh_version }}/{{ ps_pkg_name }}"
+        ps_download_url: "https://github.com/PowerShell/PowerShell/releases/download/v{{ ansible_atomic_red_team_pwsh_version }}/{{ ps_pkg_name }}"
       when: ansible_architecture in ps_arch_map
 
     - name: Download PowerShell package
@@ -38,7 +38,7 @@
     - name: Create PowerShell directory
       become: true
       ansible.builtin.file:
-        path: "{{ atomic_red_team_nix_pwsh_path }}"
+        path: "{{ ansible_atomic_red_team_nix_pwsh_path }}"
         state: directory
         mode: "0755"
         owner: "{{ ansible_user_id }}"
@@ -49,21 +49,21 @@
       become: true
       ansible.builtin.unarchive:
         src: "/tmp/{{ ps_pkg_name }}"
-        dest: "{{ atomic_red_team_nix_pwsh_path }}"
+        dest: "{{ ansible_atomic_red_team_nix_pwsh_path }}"
         remote_src: true
       when: ps_pkg_name is defined
 
     - name: Set execute permissions for pwsh
       become: true
       ansible.builtin.file:
-        path: "{{ atomic_red_team_nix_pwsh_path }}/pwsh"
+        path: "{{ ansible_atomic_red_team_nix_pwsh_path }}/pwsh"
         mode: "+x"
       when: ps_pkg_name is defined
 
     - name: Create symlink for pwsh
       become: true
       ansible.builtin.file:
-        src: "{{ atomic_red_team_nix_pwsh_path }}/pwsh"
+        src: "{{ ansible_atomic_red_team_nix_pwsh_path }}/pwsh"
         dest: "/usr/bin/pwsh"
         state: link
       when: ps_pkg_name is defined

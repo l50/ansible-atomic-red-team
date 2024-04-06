@@ -12,10 +12,10 @@
         file: "../../vars/main.yml"
 
     - name: Check if PowerShell is installed
-      ansible.builtin.shell:
-        cmd: "pwsh -NoProfile -v"
+      ansible.builtin.command: "pwsh -NoProfile -v"
       register: pwsh_version
       ignore_errors: true
+      changed_when: false
 
     - name: Assert that PowerShell is installed
       ansible.builtin.assert:
@@ -27,6 +27,7 @@
       ansible.builtin.shell:
         cmd: "echo $PATH"
       register: system_path
+      changed_when: false
 
     - name: Assert that /usr/local/bin is in $PATH
       ansible.builtin.assert:
