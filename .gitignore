@@ -1,0 +1,3 @@
+changelogs/.plugin-cache.yaml
+molecule/**/art-tids.yml
+ansible.log
