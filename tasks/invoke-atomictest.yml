@@ -27,7 +27,7 @@
 #     "testarg" : "-AtomicTechnique T1070 -TestNumbers 1,2 "
 - name: Parse test set
   ansible.builtin.set_fact:
-    testarg: |-
+    testarg: |
       {{- ('-AtomicTechnique ' + test[0].technique + ' ') -}}
       {%- if test[0].testguids is defined -%}
       {{- ('-TestGuid ' + test[0].testguids + ' ') -}}
@@ -74,7 +74,9 @@
     - name: "Execute {{ item }}"
       ansible.builtin.shell:
         cmd: |
-          Invoke-AtomicTest {{ testarg }} -Confirm:$false -TimeoutSeconds {{ ansible_atomic_red_team_timeout }} -ExecutionLogPath {{ ansible_user_dir }}/atc_execution.csv
+          Invoke-AtomicTest {{ testarg }} -Confirm:$false
+          -TimeoutSeconds {{ ansible_atomic_red_team_timeout }}
+          -ExecutionLogPath {{ ansible_user_dir }}/atc_execution.csv
       args:
         executable: pwsh
       register: execute_test
@@ -130,7 +132,9 @@
 
     - name: "Execute {{ item }}"
       ansible.windows.win_command: |
-        Invoke-AtomicTest {{ testarg }} -Confirm:$false -TimeoutSeconds {{ ansible_atomic_red_team_timeout }} -ExecutionLogPath {{ ansible_user_dir }}/atc_execution.csv
+        Invoke-AtomicTest {{ testarg }} -Confirm:$false
+        -TimeoutSeconds {{ ansible_atomic_red_team_timeout }}
+        -ExecutionLogPath {{ ansible_user_dir }}/atc_execution.csv
       register: execute_test
       ignore_errors: true
       when: prereq_check_passed
@@ -150,3 +154,5 @@
       ansible.builtin.debug:
         var: cleanup_test.stdout
       when: cleanup_test.rc != 0
+      register: ignore_errors_cleanup
+      ignore_errors: true
