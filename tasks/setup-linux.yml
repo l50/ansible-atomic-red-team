@@ -13,8 +13,8 @@
     - name: Set architecture mapping for PowerShell tar.gz packages
       ansible.builtin.set_fact:
         ps_arch_map:
-          x86_64: "x64"
-          aarch64: "arm64"
+          x86_64: x64
+          aarch64: arm64
 
     - name: Set PowerShell package name based on architecture
       ansible.builtin.set_fact:
@@ -70,8 +70,9 @@
 
 - name: Install Invoke-ART
   ansible.builtin.shell:
-    cmd: |
-      IEX (IWR 'https://raw.githubusercontent.com/redcanaryco/invoke-atomicredteam/master/install-atomicredteam.ps1' -UseBasicParsing); Install-AtomicRedTeam -getAtomics -Force
+    cmd: >
+      IEX (IWR 'https://raw.githubusercontent.com/redcanaryco/invoke-atomicredteam/master/install-atomicredteam.ps1'
+      -UseBasicParsing); Install-AtomicRedTeam -getAtomics -Force
   args:
     executable: pwsh
     creates: "{{ ansible_user_dir }}/AtomicRedTeam/atomics/Indexes/index.yaml"
@@ -80,9 +81,9 @@
   ansible.builtin.shell:
     cmd: |
       $PROFILE.AllUsersAllHosts
-  changed_when: false
   args:
     executable: pwsh
+  changed_when: false
   register: pwshprofile
 
 - name: Powershell Profile (debug)
@@ -94,7 +95,7 @@
     path: "{{ pwshprofile.stdout }}"
     state: present
     regex: '.*Invoke-AtomicRedTeam.*'
-    line: |-
+    line: |
       Import-Module "{{ ansible_user_dir }}/AtomicRedTeam/invoke-atomicredteam/Invoke-AtomicRedTeam.psd1" -Force
     owner: "{{ ansible_user_id }}"
     group: "{{ ansible_user_id }}"
