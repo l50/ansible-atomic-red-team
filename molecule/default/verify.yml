@@ -33,3 +33,50 @@
       ansible.builtin.assert:
         that:
           - "'/usr/local/bin' in system_path.stdout"
+
+    - name: Execute ART tests
+      when: ansible_atomic_red_team_execute
+      block:
+        - name: Check if emergency bash script is copied
+          ansible.builtin.stat:
+            path: "{{ art_tids.path }}/update-art-tids.sh"
+          register: emergency_script
+          delegate_to: localhost
+          become: false
+
+        - name: Assert that emergency bash script exists
+          ansible.builtin.assert:
+            that:
+              - emergency_script.stat.exists
+            fail_msg: "Emergency bash script is not copied to {{ art_tids.path }}"
+
+        - name: Check if art-tids.yml is generated
+          ansible.builtin.stat:
+            path: "{{ art_tids.path }}/art-tids.yml"
+          register: art_tids_file
+          delegate_to: localhost
+          become: false
+
+        - name: Assert that art-tids.yml is generated
+          ansible.builtin.assert:
+            that:
+              - art_tids_file.stat.exists
+            fail_msg: "art-tids.yml is not generated at {{ art_tids.path }}"
+
+        - name: Read content of art-tids.yml
+          ansible.builtin.slurp:
+            src: "{{ art_tids.path }}/art-tids.yml"
+          register: art_tids_content
+          delegate_to: localhost
+          become: false
+
+        - name: Decode content of art-tids.yml
+          ansible.builtin.set_fact:
+            art_tids_decoded: "{{ art_tids_content['content'] | b64decode }}"
+
+        - name: Assert that art-tids.yml contains expected TIDs
+          ansible.builtin.assert:
+            that:
+              - "'T1003' in art_tids_decoded"
+              - "'T1059' in art_tids_decoded"
+            fail_msg: "art-tids.yml does not contain expected TIDs"

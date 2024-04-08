@@ -11,3 +11,5 @@
   roles:
     - name: Run the atomic-red-team role
       role: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') | basename }}"
+      vars:
+        ansible_atomic_red_team_execute: true

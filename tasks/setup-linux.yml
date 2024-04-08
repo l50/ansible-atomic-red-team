@@ -67,3 +67,36 @@
         dest: "/usr/bin/pwsh"
         state: link
       when: ps_pkg_name is defined
+
+- name: Install Invoke-ART
+  ansible.builtin.shell:
+    cmd: |
+      IEX (IWR 'https://raw.githubusercontent.com/redcanaryco/invoke-atomicredteam/master/install-atomicredteam.ps1' -UseBasicParsing); Install-AtomicRedTeam -getAtomics -Force
+  args:
+    executable: pwsh
+    creates: "{{ ansible_user_dir }}/AtomicRedTeam/atomics/Indexes/index.yaml"
+
+- name: Find the path to the system powershell profile
+  ansible.builtin.shell:
+    cmd: |
+      $PROFILE.AllUsersAllHosts
+  changed_when: false
+  args:
+    executable: pwsh
+  register: pwshprofile
+
+- name: Powershell Profile (debug)
+  ansible.builtin.debug:
+    var: pwshprofile.stdout
+
+- name: Add Invoke-AtomicRedTeam to the powershell profile
+  ansible.builtin.lineinfile:
+    path: "{{ pwshprofile.stdout }}"
+    state: present
+    regex: '.*Invoke-AtomicRedTeam.*'
+    line: |-
+      Import-Module "{{ ansible_user_dir }}/AtomicRedTeam/invoke-atomicredteam/Invoke-AtomicRedTeam.psd1" -Force
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
+    mode: '0644'
+    create: true

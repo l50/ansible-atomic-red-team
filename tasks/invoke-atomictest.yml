@@ -49,6 +49,10 @@
           register: check_prereqs
           failed_when: '"Prerequisites not met:" in check_prereqs.stdout'
           changed_when: false
+
+        - name: "Set fact for prereq_check_passed"
+          ansible.builtin.set_fact:
+            prereq_check_passed: true
       rescue:
         - name: "Install prereqs for {{ item }}"
           ansible.builtin.shell:
@@ -64,20 +68,24 @@
           ansible.builtin.debug:
             var: "{{ item }}"
           loop: "{{ prereqs }}"
+          ignore_errors: true
+          register: ignore_errors_register
 
     - name: "Execute {{ item }}"
       ansible.builtin.shell:
         cmd: |
-          Invoke-AtomicTest {{ testarg }} -Confirm:$false -TimeoutSeconds 300 -ExecutionLogPath /root/atc_execution.csv
+          Invoke-AtomicTest {{ testarg }} -Confirm:$false -TimeoutSeconds {{ ansible_atomic_red_team_timeout }} -ExecutionLogPath {{ ansible_user_dir }}/atc_execution.csv
       args:
         executable: pwsh
       register: execute_test
       ignore_errors: true
       changed_when: false
+      when: prereq_check_passed
 
     - name: "Execute {{ item }}"
       ansible.builtin.debug:
         var: execute_test.stdout
+      when: prereq_check_passed
 
     - name: "Cleanup {{ item }}"
       ansible.builtin.shell:
@@ -117,19 +125,23 @@
         - name: Debug prereqs {{ item }}
           ansible.builtin.meta: debug
           with_items: "{{ prereqs }}"
+          ignore_errors: true
+          register: ignore_errors_register
 
     - name: "Execute {{ item }}"
-      ansible.windows.win_shell: |
-        Invoke-AtomicTest {{ testarg }} -Confirm:$false -TimeoutSeconds 300 -ExecutionLogPath /root/atc_execution.csv
+      ansible.windows.win_command: |
+        Invoke-AtomicTest {{ testarg }} -Confirm:$false -TimeoutSeconds {{ ansible_atomic_red_team_timeout }} -ExecutionLogPath {{ ansible_user_dir }}/atc_execution.csv
       register: execute_test
       ignore_errors: true
+      when: prereq_check_passed
 
     - name: "Execute {{ item }}"
       ansible.builtin.debug:
         var: execute_test.stdout
+      when: prereq_check_passed
 
     - name: "Cleanup {{ item }}"
-      ansible.windows.win_shell: |
+      ansible.windows.win_command: |
         Invoke-AtomicTest {{ testarg }} -Cleanup
       register: cleanup_test
       ignore_errors: true
