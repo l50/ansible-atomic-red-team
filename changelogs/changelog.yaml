@@ -1,0 +1,69 @@
+ancestor: null
+releases:
+  1.0.0:
+    changes:
+      added:
+      - Added Converge playbook for applying the role during testing
+      - Added Docker platforms in molecule.yml for testing the role on Ubuntu, Kali,
+        and Rocky Linux containers
+      - Added GitHub Labeler Configuration to automatically label pull requests based
+        on the changed files
+      - Added GitHub Labels Definition to define repository labels for issues and
+        pull requests
+      - Added Inventory file for Molecule testing
+      - Added Molecule configuration files for the atomic-red-team role to support
+        local testing and verification
+      - Added Renovate Auto Merge Configuration for automatic merging of specific
+        types of dependency updates
+      - Added Renovate Bot Configuration for Renovate bot settings to manage dependencies
+      - Added Verify playbook for verifying the role's functionality during testing
+      - Added a task to copy the emergency bash script to the temporary directory
+      - Added a task to create a temporary directory for storing ART TIDs and emergency
+        script
+      - Added ansible_atomic_red_team_execute variable to control execution of ART
+        tests
+      - Added ansible_atomic_red_team_timeout variable to set timeout for each test
+      - Added automated GitHub actions for testing, labeling, and updating dependencies
+      - Added automated documentation generation for magefile utilities
+      - Added installation of Invoke-AtomicRedTeam in tasks/setup-linux.yml
+      - Added magefiles directory with Magefile utilities for automation
+      - Added modification of PowerShell profile to include Invoke-AtomicRedTeam module
+      - Added variables for PowerShell version and installation path
+      - Added verification tasks in molecule/default/verify.yml to check if emergency
+        bash script and art-tids.yml are properly generated and contain expected TIDs
+      - Included common, Debian-specific, and RedHat-specific package lists for installation
+      changed:
+      - Adjusted the testarg set_fact for consistency in tasks/invoke-atomictest.yml
+      - Fixed issue with temporary directory creation and usage in ART TIDs gathering
+        and emergency script copying tasks
+      - Refactored PowerShell installation to use a generic approach with architecture
+        mapping
+      - Refactored tasks/gather-art-tids.yml to use the temporary directory for storing
+        art-tids.yml
+      - Refactored tasks/main.yml to include ART TIDs gathering and test execution
+        in a block conditional on ansible_atomic_red_team_execute
+      - Reformatted the PowerShell command for installing Invoke-ART for better readability
+        in tasks/setup-linux.yml
+      - Removed unnecessary hyphen in the lineinfile task in tasks/setup-linux.yml
+      - Removed unnecessary quotes from the ps_arch_map dictionary in tasks/setup-linux.yml
+      - Renamed variables in tasks and defaults to use ansible_atomic_red_team_ prefix
+      - Renamed vars/update-art-tids.sh to files/update-art-tids.sh
+      - Simplified setup-linux.yml to streamline PowerShell setup and remove old installation
+        methods
+      - Split long command lines into multiple lines to adhere to line length best
+        practices in tasks/invoke-atomictest.yml and tasks/setup-linux.yml
+      - Split the index_csv_url value into multiple lines for better readability in
+        tasks/gather-art-tids.yml
+      - Updated README.md to improve readability and structure
+      - Updated ansible_atomic_red_team_banned_tids_linux to include T1562.001
+      - Updated gather-art-tids.yml and setup-* tasks to use the new variable names
+      - Updated invoke-atomictest.yml to use the pwsh command without absolute paths
+      - Updated molecule/default/converge.yml to set ansible_atomic_red_team_execute
+        to true for testing
+      - Updated tasks/invoke-atomictest.yml to set a fact when prerequisites check
+        passes and to conditionally execute the test based on this fact
+      removed:
+      - Removed old PowerShell installation tasks specific to Ubuntu, Amazon Linux,
+        and CentOS
+      - Removed unnecessary wget from atomic_red_team_debian_specific_packages
+    release_date: '2024-04-08'

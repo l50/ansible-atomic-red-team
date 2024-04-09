@@ -3,7 +3,7 @@ galaxy_info:
   description: An ansible role to execute Atomic Red Team tests on Windows and Linux using Invoke-AtomicRedTeam
   company: Red Canary
   role_name: atomic_red_team
-  namespace: redcanary
+  namespace: l50 # Changed from original for galaxy
 
   license: MIT
 
