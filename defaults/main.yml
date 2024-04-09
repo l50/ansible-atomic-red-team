@@ -21,6 +21,7 @@ ansible_atomic_red_team_banned_tids_linux:
   - T1529     # reboot/shutdown
   - T1530     # cloud
   - T1562.001 # breaks the tests
+  - T1021.004 # also breaks the tests
   - T1562.006 # auditd changes (may break some telemetry collection)
   - T1562.008 # cloud logging changes
   - T1574.006 # Dynamic Linker Hijacking (requires manual cleanup / testing - might break subsequent tests)
