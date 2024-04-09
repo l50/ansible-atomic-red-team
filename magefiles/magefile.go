@@ -6,7 +6,9 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/bitfield/script"
 	"github.com/fatih/color"
@@ -129,11 +131,26 @@ func GenChangeLog() error {
 
 	cmds := []string{
 		"antsibull-changelog lint",
-		"antsibull-changelog release --version $NEXT_VERSION",
+		"antsibull-changelog release --version $NEXT_VERSION --is-collection no",
 	}
 
 	fmt.Println(color.YellowString("Generating changelog for release %s\n", version))
 	return runCmds(cmds)
+}
+
+func getRepoNameFromGitRemote() (string, error) {
+	cmd := exec.Command("git", "config", "--get", "remote.origin.url")
+	output, err := cmd.Output()
+	if err != nil {
+		return "", err
+	}
+	url := strings.TrimSpace(string(output))
+	parts := strings.Split(url, "/")
+	if len(parts) < 2 {
+		return "", fmt.Errorf("invalid git remote URL: %s", url)
+	}
+	repo := parts[len(parts)-2] + "/" + strings.TrimSuffix(parts[len(parts)-1], ".git")
+	return repo, nil
 }
 
 // CreateRelease creates a release on GitHub.
@@ -159,9 +176,14 @@ func CreateRelease() error {
 			"Example: NEXT_VERSION=1.0.0 mage createrelease")
 	}
 
-	fmt.Printf(color.YellowString("Creating release %s\n", version))
-	_, err := sys.RunCommand("gh", "release", "create", version, "-F",
-		filepath.Join("changelogs", "CHANGELOG.rst"))
+	repo, err := getRepoNameFromGitRemote()
+	if err != nil {
+		return fmt.Errorf("failed to get repository name from git remote: %v", err)
+	}
+
+	fmt.Printf(color.YellowString("Creating release %s for repository %s\n", version, repo))
+	_, err = sys.RunCommand("gh", "release", "create", version, "-F",
+		filepath.Join("changelogs", "CHANGELOG.rst"), "--target", "main", "--repo", repo)
 	return err
 }
 
