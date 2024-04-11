@@ -1,5 +1,6 @@
 ---
 ansible_atomic_red_team_common_install_packages:
+  - bash
   - wget
 
 ansible_atomic_red_team_debian_specific_packages:
