@@ -71,15 +71,27 @@
           failed_when: pwsh_version.rc != 0
           changed_when: false
 
+    - name: Check if Invoke-AtomicRedTeam is already installed
+      ansible.builtin.shell:
+        cmd: |
+          $module = Get-Module -ListAvailable -Name Invoke-AtomicRedTeam;
+          if ($module) { Write-Output "installed" } else { Write-Output "not installed" }
+        executable: pwsh
+      register: check_art_installed
+      changed_when: false
+      failed_when: false
+      ignore_errors: true
+
     - name: Install Invoke-AtomicRedTeam
       ansible.builtin.shell:
         cmd: >
           IEX (IWR 'https://raw.githubusercontent.com/redcanaryco/invoke-atomicredteam/master/install-atomicredteam.ps1' -UseBasicParsing);
           Install-AtomicRedTeam -getAtomics -Force
         executable: pwsh
+      when: "'not installed' in check_art_installed.stdout"
       register: art_install
       failed_when: art_install.rc != 0
-      changed_when: true
+      changed_when: "'Installed' in art_install.stdout"
       ignore_errors: true
 
     - name: Log installation errors if failed
