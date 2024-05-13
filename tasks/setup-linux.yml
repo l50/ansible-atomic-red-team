@@ -41,6 +41,7 @@
             group: "{{ ansible_user_id }}"
 
         - name: Create PowerShell installation directory
+          become: true
           ansible.builtin.file:
             path: "{{ ansible_atomic_red_team_nix_pwsh_path }}"
             state: directory
@@ -49,17 +50,20 @@
             group: "{{ ansible_user_id }}"
 
         - name: Extract PowerShell package
+          become: true
           ansible.builtin.unarchive:
             src: "/tmp/{{ ps_pkg_name }}"
             dest: "{{ ansible_atomic_red_team_nix_pwsh_path }}"
             remote_src: true
 
         - name: Set execute permissions for pwsh
+          become: true
           ansible.builtin.file:
             path: "{{ ansible_atomic_red_team_nix_pwsh_path }}/pwsh"
             mode: "+x"
 
         - name: Create symlink for pwsh
+          become: true
           ansible.builtin.file:
             src: "{{ ansible_atomic_red_team_nix_pwsh_path }}/pwsh"
             dest: "/usr/bin/pwsh"
